@@ -232,7 +232,7 @@ def main(squad_v2=False):
     
     tokenized_train = train_data.map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=train_data.column_names)
     tokenized_val = val_data.map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=val_data.column_names)
-    tokenized_test = test_data.map(lambda example: prepare_features(example, split='val'), batched=True, remove_columns=test_data.column_names)
+    tokenized_test = test_data.map(lambda example: prepare_features(example, split='test'), batched=True, remove_columns=test_data.column_names)
 
     model = AutoModelForQuestionAnswering.from_pretrained(model_checkpoint)
     
