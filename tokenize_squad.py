@@ -5,11 +5,13 @@ Created on Sun Oct 10 10:06:26 2021
 @author: Shadow
 """
 
-from datasets import load_dataset
+from datasets import load_dataset, load_metric 
 from transformers import AutoModelForQuestionAnswering, TrainingArguments, Trainer
 from transformers import AutoTokenizer
 from transformers import default_data_collator
-
+from tqdm.auto import tqdm
+import numpy as np
+import collections
 
 
 
@@ -123,10 +125,97 @@ def prepare_features(examples, split):
             ]
     
         return tokenized_examples
+
+def postprocess_qa_predictions(examples, features, raw_predictions, n_best_size = 20, max_answer_length = 30, squad_v2=False):
+    all_start_logits, all_end_logits = raw_predictions
+    # Build a map example to its corresponding features.
+    example_id_to_index = {k: i for i, k in enumerate(examples["id"])}
+    features_per_example = collections.defaultdict(list)
+    for i, feature in enumerate(features):
+        features_per_example[example_id_to_index[feature["example_id"]]].append(i)
+
+    # The dictionaries we have to fill.
+    predictions = collections.OrderedDict()
+
+    # Logging.
+    print(f"Post-processing {len(examples)} example predictions split into {len(features)} features.")
+
+    # Let's loop over all the examples!
+    for example_index, example in enumerate(tqdm(examples)):
+        # Those are the indices of the features associated to the current example.
+        feature_indices = features_per_example[example_index]
+
+        min_null_score = None # Only used if squad_v2 is True.
+        valid_answers = []
+        
+        context = example["context"]
+        # Looping through all the features associated to the current example.
+        for feature_index in feature_indices:
+            # We grab the predictions of the model for this feature.
+            start_logits = all_start_logits[feature_index]
+            end_logits = all_end_logits[feature_index]
+            # This is what will allow us to map some the positions in our logits to span of texts in the original
+            # context.
+            offset_mapping = features[feature_index]["offset_mapping"]
+
+            # Update minimum null prediction.
+            cls_index = features[feature_index]["input_ids"].index(tokenizer.cls_token_id)
+            feature_null_score = start_logits[cls_index] + end_logits[cls_index]
+            if min_null_score is None or min_null_score < feature_null_score:
+                min_null_score = feature_null_score
+
+            # Go through all possibilities for the `n_best_size` greater start and end logits.
+            start_indexes = np.argsort(start_logits)[-1 : -n_best_size - 1 : -1].tolist()
+            end_indexes = np.argsort(end_logits)[-1 : -n_best_size - 1 : -1].tolist()
+            for start_index in start_indexes:
+                for end_index in end_indexes:
+                    # Don't consider out-of-scope answers, either because the indices are out of bounds or correspond
+                    # to part of the input_ids that are not in the context.
+                    if (
+                        start_index >= len(offset_mapping)
+                        or end_index >= len(offset_mapping)
+                        or offset_mapping[start_index] is None
+                        or offset_mapping[end_index] is None
+                    ):
+                        continue
+                    # Don't consider answers with a length that is either < 0 or > max_answer_length.
+                    if end_index < start_index or end_index - start_index + 1 > max_answer_length:
+                        continue
+
+                    start_char = offset_mapping[start_index][0]
+                    end_char = offset_mapping[end_index][1]
+                    valid_answers.append(
+                        {
+                            "score": start_logits[start_index] + end_logits[end_index],
+                            "text": context[start_char: end_char]
+                        }
+                    )
+        
+        if len(valid_answers) > 0:
+            best_answer = sorted(valid_answers, key=lambda x: x["score"], reverse=True)[0]
+        else:
+            # In the very rare edge case we have not a single non-null prediction, we create a fake prediction to avoid
+            # failure.
+            best_answer = {"text": "", "score": 0.0}
+        
+        # Let's pick our final answer: the best one or the null answer (only for squad_v2)
+        if not squad_v2:
+            predictions[example["id"]] = best_answer["text"]
+        else:
+            answer = best_answer["text"] if best_answer["score"] > min_null_score else ""
+            predictions[example["id"]] = answer
+
+    return predictions
+
+def main(squad_v2=False):
     
-def main():
+    #im trying to use less data here to see if this works
+    #datasets = load_dataset("squad_v2" if squad_v2 else "squad")
     
-    datasets = load_dataset("squad_v2")
+    train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[:10%]')
+    val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[:50%]')
+    test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[50%:]')
+
     model_checkpoint = 'facebook/muppet-roberta-base'
     batch_size = 16
     
@@ -134,11 +223,15 @@ def main():
     global tokenizer 
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 
-
+    '''
     tokenized_train = datasets['train'].map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=datasets["train"].column_names)
     tokenized_val = datasets['validation'].map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=datasets["train"].column_names)
     tokenized_test = datasets['validation'].map(lambda example: prepare_features(example, split='val'), batched=True, remove_columns=datasets["train"].column_names)
+    '''
     
+    tokenized_train = train_data.map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=train_data.column_names)
+    tokenized_val = val_data.map(lambda example: prepare_features(example, split='train'), batched=True, remove_columns=val_data.column_names)
+    tokenized_test = test_data.map(lambda example: prepare_features(example, split='val'), batched=True, remove_columns=test_data.column_names)
 
     model = AutoModelForQuestionAnswering.from_pretrained(model_checkpoint)
     
@@ -165,6 +258,38 @@ def main():
     )
     
     trainer.train()
+    
+    #Grabbing the predictions for all features
+    raw_predictions = trainer.predict(tokenized_test)
+    
+    #The Trainer hides the columns that are not used by the model 
+    #(here example_id and offset_mapping which we will need for our post-processing), so we set them back:
+    tokenized_test.set_format(type=tokenized_test.format["type"], columns=list(tokenized_test.features.keys()))
+    
+    #test_examples = datasets['validation']
+    test_examples = test_data
+    test_features = tokenized_test
+    
+    example_id_to_index = {k: i for i, k in enumerate(test_examples["id"])}
+    features_per_example = collections.defaultdict(list)
+    for i, feature in enumerate(test_features):
+        features_per_example[example_id_to_index[feature["example_id"]]].append(i)
+        
+    #final_predictions = postprocess_qa_predictions(datasets["validation"], tokenized_test, raw_predictions.predictions, squad_v2=squad_v2)
+    final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, squad_v2=squad_v2)
+
+    metric = load_metric("squad_v2" if squad_v2 else "squad")
+    
+    if squad_v2:
+        formatted_predictions = [{"id": k, "prediction_text": v, "no_answer_probability": 0.0} for k, v in final_predictions.items()]
+    else:
+        formatted_predictions = [{"id": k, "prediction_text": v} for k, v in final_predictions.items()]
+    
+    #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
+    references = [{"id": ex["id"], "answers": ex["answers"]} for ex in test_data]
+
+    print()
+    print(metric.compute(predictions=formatted_predictions, references=references))
     
 if __name__ == "__main__":
     main()
