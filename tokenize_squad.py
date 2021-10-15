@@ -216,7 +216,8 @@ def main(squad_v2=False):
     val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[:50%]')
     test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[50%:]')
 
-    model_checkpoint = 'facebook/muppet-roberta-base'
+    #model_checkpoint = 'facebook/muppet-roberta-base'
+    model_checkpoint = 'distilbert-base-uncased'
     batch_size = 16
     
         
