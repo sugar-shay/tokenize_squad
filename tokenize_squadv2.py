@@ -321,7 +321,7 @@ def main(squad_v2=False):
     
     final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
-    metric = load_metric("squad_v2" if squad_v2 else "squad")
+    metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
     if squad_v2:
         formatted_predictions = [{"id": k, "prediction_text": v, "no_answer_probability": 0.0} for k, v in final_predictions.items()]
