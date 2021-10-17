@@ -154,7 +154,7 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
 
 def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, this_tokenizer, **kwargs):
     
-    assert "sqaud_v2" in kwargs, "You must specify if you are using squad_v2"
+    assert "squad_v2" in kwargs, "You must specify if you are using squad_v2"
     
     squad_v2 = kwargs['squad_v2']
     n_best_size = kwargs['n_best_size'] if 'n_best_size' in kwargs else 20
