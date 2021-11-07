@@ -158,6 +158,8 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
         
         # We keep the example_id that gave us this feature and we will store the offset mappings.
         tokenized_example["example_id"] = []
+        tokenized_example["start_positions"] = []
+        tokenized_example["end_positions"] = []
     
         for i in range(len(tokenized_example["input_ids"])):
             
