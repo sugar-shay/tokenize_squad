@@ -351,7 +351,7 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
         
         #context = example["context"]
         input_ids = tokenized_test_data[example_index]['input_ids']
-        print('input ids shape: ', input_ids.shape)
+        print('input ids len: ', len(input_ids))
         # Looping through all the features associated to the current example.
         for feature_index in feature_indices:
             # We grab the predictions of the model for this feature.
