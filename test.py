@@ -292,17 +292,7 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     # The authorized overlap between two part of the context when splitting it is needed.
     max_answer_length = kwargs['max_answer_length'] if 'max_answer_length' in kwargs else 30 
     
-    tokenized_test_data.set_format(type=tokenized_test_data.format["type"], columns=list(tokenized_test_data.features.keys()))
-    
-    #test_examples = datasets['validation']
-    test_examples = test_data
-    test_features = tokenized_test_data
-    
-    example_id_to_index = {k: i for i, k in enumerate(test_examples["id"])}
-    features_per_example = collections.defaultdict(list)
-    for i, feature in enumerate(test_features):
-        features_per_example[example_id_to_index[feature["example_id"]]].append(i)
-        
+    tokenized_test_data.set_format(type=tokenized_test_data.format["type"], columns=list(tokenized_test_data.features.keys()))    
     
     all_start_logits, all_end_logits = raw_predictions
     # Build a map example to its corresponding features.
@@ -452,6 +442,7 @@ def main(squad_v2=False):
         tokenizer=tokenizer,
     )
     
+    #NOT TRAINING SO THAT I CAN MESS WIT THE PREDICTIONS
     #trainer.train()
     
     #Grabbing the predictions for all features
