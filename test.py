@@ -335,7 +335,8 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
 
 
     # The dictionaries we have to fill.
-    predictions = collections.OrderedDict()
+    #predictions = collections.OrderedDict()
+    predictions = []
 
     # Logging.
     print(f"Post-processing {len(test_data)} example predictions split into {len(tokenized_test_data)} features.")
@@ -401,10 +402,12 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
         
         # Let's pick our final answer: the best one or the null answer (only for squad_v2)
         if not squad_v2:
-            predictions[example_index["id"]] = best_answer["text"]
+            #predictions[example_index["id"]] = best_answer["text"]
+            predictions.append(best_answer["text"])
         else:
             answer = best_answer["text"] if best_answer["score"] > min_null_score else ""
-            predictions[example_index["id"]] = answer
+            #predictions[example_index["id"]] = answer
+            predictions.append(answer)
 
     return predictions
 
@@ -484,7 +487,7 @@ def main(squad_v2=False):
     
     postprocess_kwargs = {'squad_v2':False}
     
-    final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
+    final_predictions = new_postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
