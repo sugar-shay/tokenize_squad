@@ -540,7 +540,7 @@ def main(squad_v2=False):
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
     print('final preds len: ', len(final_predictions))
-    print('final preds[0] shape', final_predictions[0].shape)
+    print('final preds[0] shape', len(final_predictions[0]))
     
     '''
     if squad_v2:
