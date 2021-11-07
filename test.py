@@ -206,7 +206,7 @@ def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, 
     test_features = tokenized_test_data
     
     print()
-    print('tokenized_test data id: ', tokenized_test_data['id'])
+    blah = [print(k) for i, k in enumerate(test_examples["id"])]
     print()
     example_id_to_index = {k: i for i, k in enumerate(test_examples["id"])}
     features_per_example = collections.defaultdict(list)
