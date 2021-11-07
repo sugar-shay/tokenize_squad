@@ -478,7 +478,9 @@ def main(squad_v2=False):
     #Grabbing the predictions for all features
     raw_predictions = trainer.predict(tokenized_test)
     
-    print('raw_prediction attributes :', dir(raw_predictions))
+    print()
+    print('raw_prediction  :', raw_predictions)
+    print()
     
     postprocess_kwargs = {'squad_v2':False}
     
