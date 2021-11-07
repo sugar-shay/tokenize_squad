@@ -512,7 +512,7 @@ def main(squad_v2=False):
     
     train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[:10%]')
     val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[:50%]')
-    test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[50%]')
+    test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[50%:]')
     
 
     #model_checkpoint = 'facebook/muppet-roberta-base'
