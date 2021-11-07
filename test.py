@@ -76,6 +76,8 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
     # its corresponding example. This key gives us just that.
     print_example=None 
     sample_mapping = tokenized_example.pop("overflow_to_sample_mapping")
+    
+    '''
     if len(sample_mapping) > 1:
         print_example=True
         print('sample_mapping: ', sample_mapping)
@@ -85,6 +87,7 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
         print()
         print('len this_example: ', len(this_example['context']))
         print()
+    '''
     
     if kwargs['data_split'] == 'train' or kwargs['data_split'] == 'validation':
         # The offset mappings will give us a map from token to character position in the original context. This will
@@ -141,11 +144,13 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
                         token_end_index -= 1
                     tokenized_example["end_positions"].append(token_end_index + 1)
         
+        '''
         if print_example == True:
             print('tokenized_example train/val: ', tokenized_example)
             print('len offsets: ', len(offsets))
             #print()
             #print('len tokenized_example: ', len(tokenized_example['input_ids']))
+        '''
         return tokenized_example
     
     
@@ -172,12 +177,16 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
             
         tokenized_example['id'] = this_example['id']
         
+        print('NA')
         print('this example id: ',  this_example['id'])
+        print('NA')
         
+        '''
         if print_example == True:
             print('tokenized_example test: ', tokenized_example)
             print()
             print('len tokenized_example: ', len(tokenized_example['input_ids']))
+        '''
         return tokenized_example
 
 def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, this_tokenizer, **kwargs):
