@@ -172,6 +172,8 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
             
         tokenized_example['id'] = this_example['id']
         
+        print('this example id: ',  this_example['id'])
+        
         if print_example == True:
             print('tokenized_example test: ', tokenized_example)
             print()
