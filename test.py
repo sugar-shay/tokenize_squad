@@ -450,7 +450,7 @@ def main(squad_v2=False):
     
     postprocess_kwargs = {'squad_v2':False}
     
-    final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
+    final_predictions = new_postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
