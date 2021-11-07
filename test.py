@@ -406,7 +406,7 @@ def main(squad_v2=False):
     
     kwargs_train = {'data_split':'train'}
     kwargs_val = {'data_split':'validation'}
-    kwargs_test = {'data_split':'train'}
+    kwargs_test = {'data_split':'test'}
     
     tokenized_train = train_data.map(lambda example: tokenize_squad(example, this_tokenizer = tokenizer, **kwargs_train), batched=True, remove_columns=train_data.column_names)
     tokenized_val = val_data.map(lambda example: tokenize_squad(example, this_tokenizer = tokenizer, **kwargs_val), batched=True, remove_columns=val_data.column_names)
