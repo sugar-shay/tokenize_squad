@@ -510,9 +510,9 @@ def main(squad_v2=False):
     #im trying to use less data here to see if this works
     #datasets = load_dataset("squad_v2" if squad_v2 else "squad")
     
-    train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[3:5]')
-    val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[3:5]')
-    test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[3:5]')
+    train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[50%]')
+    val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[:50%]')
+    test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[50%]')
     
 
     #model_checkpoint = 'facebook/muppet-roberta-base'
@@ -568,7 +568,7 @@ def main(squad_v2=False):
     )
     
     #NOT TRAINING SO THAT I CAN MESS WIT THE PREDICTIONS
-    #trainer.train()
+    trainer.train()
     
     #Grabbing the predictions for all features
     raw_predictions = trainer.predict(tokenized_test)
