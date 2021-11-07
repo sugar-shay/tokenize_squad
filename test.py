@@ -342,7 +342,7 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     print(f"Post-processing {len(test_data)} example predictions split into {len(tokenized_test_data)} features.")
 
     # Let's loop over all the examples!
-    for example_index in len(tqdm(tokenized_test_data)):
+    for example_index in range(len(tqdm(tokenized_test_data))):
         # Those are the indices of the features associated to the current example.
         feature_indices = features_per_example[example_index]
 
