@@ -579,29 +579,29 @@ def main(squad_v2=False):
     
     postprocess_kwargs = {'squad_v2':False}
     
-    final_predictions = new_postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
+    final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
+    
+    new_final_predictions = new_postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
+
     
-    print('final preds len: ', len(final_predictions))
-    print('final preds[0] shape', len(final_predictions[0]))
     
-    '''
     if squad_v2:
         formatted_predictions = [{"id": k, "prediction_text": v, "no_answer_probability": 0.0} for k, v in final_predictions.items()]
     else:
         formatted_predictions = [{"id": k, "prediction_text": v} for k, v in final_predictions.items()]
-    '''
-    #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
     
-    references = get_refs(tokenized_test)
+    references = [{"id": ex["id"], "answers": ex["answers"]} for ex in test_data]
+    
+    new_references = get_refs(tokenized_test)
     
     print()
-    #print(metric.compute(predictions=formatted_predictions, references=references))
+    print(metric.compute(predictions=formatted_predictions, references=references))
     #print(metric.compute(predictions=final_predictions, references=references))
     
-    f1 = compute_f1(list(itertools.chain(*final_predictions)) , list(itertools.chain(*references)))
-    print('F1 Score: ', f1)
+    f1 = compute_f1(list(itertools.chain(*new_final_predictions)) , list(itertools.chain(*new_references)))
+    print('New F1 Score: ', f1)
     
     
     
