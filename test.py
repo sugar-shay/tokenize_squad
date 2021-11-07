@@ -312,10 +312,7 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     
     tokenized_test_data.set_format(type=tokenized_test_data.format["type"], columns=list(tokenized_test_data.features.keys()))    
     
-    print('NA')
-    for i, k in enumerate(tokenized_test_data["id"]):
-        print(k)
-    print('NA')
+    
     
     all_start_logits, all_end_logits = raw_predictions
     # Build a map example to its corresponding features.
@@ -324,8 +321,11 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     for i, feature in enumerate(tokenized_test_data):
         features_per_example[example_id_to_index[feature["example_id"]]].append(i)
         
+    tokenized_example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["id"])}
+        
     print()
-    print('features per example: ', features_per_example)
+    print('len example_id_to_index: ', len(example_id_to_index))
+    print('len tokenized_example_id_to_index: ', len(tokenized_example_id_to_index))
     print()
 
     # The dictionaries we have to fill.
