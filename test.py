@@ -447,7 +447,7 @@ def main(squad_v2=False):
     
     #Grabbing the predictions for all features
     raw_predictions = trainer.predict(tokenized_test)
-    '''
+    
     postprocess_kwargs = {'squad_v2':False}
     
     final_predictions = postprocess_qa_predictions(test_data, tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
@@ -464,6 +464,7 @@ def main(squad_v2=False):
 
     print()
     print(metric.compute(predictions=formatted_predictions, references=references))
+    '''
     '''
     
 if __name__ == "__main__":
