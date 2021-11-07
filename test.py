@@ -479,7 +479,7 @@ def main(squad_v2=False):
     raw_predictions = trainer.predict(tokenized_test)
     
     print()
-    print('raw_prediction  :', raw_predictions)
+    print('raw_prediction shape  :', raw_predictions.shape)
     print()
     
     postprocess_kwargs = {'squad_v2':False}
