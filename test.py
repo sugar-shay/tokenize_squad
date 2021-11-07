@@ -510,7 +510,7 @@ def main(squad_v2=False):
     #im trying to use less data here to see if this works
     #datasets = load_dataset("squad_v2" if squad_v2 else "squad")
     
-    train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[50%]')
+    train_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[:10%%]')
     val_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'validation[:50%]')
     test_data = load_dataset("squad_v2" if squad_v2 else "squad", split = 'train[50%]')
     
