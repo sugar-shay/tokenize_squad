@@ -223,7 +223,7 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
                     tokenized_example["end_positions"].append(token_end_index + 1)
         
             
-        tokenized_example['id'] = this_example['id']
+            tokenized_example['id'] = this_example['id']
         
         '''
         print('NA')
