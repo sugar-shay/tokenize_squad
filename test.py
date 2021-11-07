@@ -205,10 +205,7 @@ def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, 
     test_examples = test_data
     test_features = tokenized_test_data
     
-    print('NA')
-    for i, k in enumerate(test_examples["id"]):
-        print(k)
-    print('NA')
+
     example_id_to_index = {k: i for i, k in enumerate(test_examples["id"])}
     features_per_example = collections.defaultdict(list)
     for i, feature in enumerate(test_features):
@@ -314,6 +311,11 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     max_answer_length = kwargs['max_answer_length'] if 'max_answer_length' in kwargs else 30 
     
     tokenized_test_data.set_format(type=tokenized_test_data.format["type"], columns=list(tokenized_test_data.features.keys()))    
+    
+    print('NA')
+    for i, k in enumerate(tokenized_test_data["id"]):
+        print(k)
+    print('NA')
     
     all_start_logits, all_end_logits = raw_predictions
     # Build a map example to its corresponding features.
