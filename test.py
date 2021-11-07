@@ -576,11 +576,11 @@ def main(squad_v2=False):
     #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
     
     references = get_refs(tokenized_test)
-    '''
+    
     print()
     #print(metric.compute(predictions=formatted_predictions, references=references))
     print(metric.compute(predictions=final_predictions, references=references))
-    '''
+    
     
 if __name__ == "__main__":
     main()
