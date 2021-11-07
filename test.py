@@ -236,7 +236,6 @@ def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, 
     # Let's loop over all the examples!
     for example_index, example in enumerate(tqdm(test_data)):
         
-        print('example: ', example)
         # Those are the indices of the features associated to the current example.
         feature_indices = features_per_example[example_index]
 
@@ -478,6 +477,8 @@ def main(squad_v2=False):
     
     #Grabbing the predictions for all features
     raw_predictions = trainer.predict(tokenized_test)
+    
+    print('raw_prediction attributes :', dir(raw_predictions))
     
     postprocess_kwargs = {'squad_v2':False}
     
