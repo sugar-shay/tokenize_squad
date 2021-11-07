@@ -340,14 +340,15 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     print(f"Post-processing {len(test_data)} example predictions split into {len(tokenized_test_data)} features.")
 
     # Let's loop over all the examples!
-    for example_index, example in enumerate(tqdm(test_data)):
+    for example_index in len(tqdm(tokenized_test_data)):
         # Those are the indices of the features associated to the current example.
         feature_indices = features_per_example[example_index]
 
         min_null_score = None # Only used if squad_v2 is True.
         valid_answers = []
         
-        context = example["context"]
+        #context = example["context"]
+        input_ids = tokenized_test_data[example_index]
         # Looping through all the features associated to the current example.
         for feature_index in feature_indices:
             # We grab the predictions of the model for this feature.
@@ -381,12 +382,12 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
                     if end_index < start_index or end_index - start_index + 1 > max_answer_length:
                         continue
 
-                    start_char = offset_mapping[start_index][0]
-                    end_char = offset_mapping[end_index][1]
+                    #start_char = offset_mapping[start_index][0]
+                    #end_char = offset_mapping[end_index][1]
                     valid_answers.append(
                         {
                             "score": start_logits[start_index] + end_logits[end_index],
-                            "text": context[start_char: end_char]
+                            "input_ids": input_ids[start_index: end_index]
                         }
                     )
         
@@ -399,10 +400,10 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
         
         # Let's pick our final answer: the best one or the null answer (only for squad_v2)
         if not squad_v2:
-            predictions[example["id"]] = best_answer["text"]
+            predictions[example_index["id"]] = best_answer["text"]
         else:
             answer = best_answer["text"] if best_answer["score"] > min_null_score else ""
-            predictions[example["id"]] = answer
+            predictions[example_index["id"]] = answer
 
     return predictions
 
