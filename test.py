@@ -169,6 +169,8 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
                 (o if sequence_ids[k] == context_index else None)
                 for k, o in enumerate(tokenized_example["offset_mapping"][i])
             ]
+            
+        tokenized_example['id'] = this_example['id']
         
         if print_example == True:
             print('tokenized_example test: ', tokenized_example)
@@ -192,6 +194,9 @@ def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, 
     test_examples = test_data
     test_features = tokenized_test_data
     
+    print()
+    print('tokenized_test data id: ', tokenized_test_data['id'])
+    print()
     example_id_to_index = {k: i for i, k in enumerate(test_examples["id"])}
     features_per_example = collections.defaultdict(list)
     for i, feature in enumerate(test_features):
@@ -214,6 +219,10 @@ def postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictions, 
 
     # Logging.
     print(f"Post-processing {len(test_data)} example predictions split into {len(tokenized_test_data)} features.")
+    
+    print()
+    print('')
+    print()
 
     # Let's loop over all the examples!
     for example_index, example in enumerate(tqdm(test_data)):
