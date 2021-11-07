@@ -160,9 +160,15 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
         tokenized_example["example_id"] = []
     
         for i in range(len(tokenized_example["input_ids"])):
+            
+            input_ids = tokenized_example["input_ids"][i]
+            cls_index = input_ids.index(this_tokenizer.cls_token_id)
+            
             # Grab the sequence corresponding to that example (to know what is the context and what is the question).
             sequence_ids = tokenized_example.sequence_ids(i)
             context_index = 1 if pad_on_right else 0
+            
+            offsets = tokenized_example['offset_mapping'][i]
     
             # One example can give several spans, this is the index of the example containing this span of text.
             sample_index = sample_mapping[i]
@@ -175,11 +181,50 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
                 for k, o in enumerate(tokenized_example["offset_mapping"][i])
             ]
             
+            
+    
+            answers = this_example["answers"][sample_index]
+            # If no answers are given, set the cls_index as answer.
+            if len(answers["answer_start"]) == 0:
+                tokenized_example["start_positions"].append(cls_index)
+                tokenized_example["end_positions"].append(cls_index)
+            else:
+                # Start/end character index of the answer in the text.
+                start_char = answers["answer_start"][0]
+                end_char = start_char + len(answers["text"][0])
+    
+                # Start token index of the current span in the text.
+                token_start_index = 0
+                while sequence_ids[token_start_index] != (1 if pad_on_right else 0):
+                    token_start_index += 1
+    
+                # End token index of the current span in the text.
+                token_end_index = len(input_ids) - 1
+                while sequence_ids[token_end_index] != (1 if pad_on_right else 0):
+                    token_end_index -= 1
+    
+                # Detect if the answer is out of the span (in which case this feature is labeled with the CLS index).
+                if not (offsets[token_start_index][0] <= start_char and offsets[token_end_index][1] >= end_char):
+                    tokenized_example["start_positions"].append(cls_index)
+                    tokenized_example["end_positions"].append(cls_index)
+                else:
+                    # Otherwise move the token_start_index and token_end_index to the two ends of the answer.
+                    # Note: we could go after the last offset if the answer is the last word (edge case).
+                    while token_start_index < len(offsets) and offsets[token_start_index][0] <= start_char:
+                        token_start_index += 1
+                    tokenized_example["start_positions"].append(token_start_index - 1)
+                    while offsets[token_end_index][1] >= end_char:
+                        token_end_index -= 1
+                    tokenized_example["end_positions"].append(token_end_index + 1)
+        
+            
         tokenized_example['id'] = this_example['id']
         
+        '''
         print('NA')
         print('this example id: ',  this_example['id'])
         print('NA')
+        '''
         
         '''
         if print_example == True:
@@ -492,16 +537,18 @@ def main(squad_v2=False):
     
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
+    '''
     if squad_v2:
         formatted_predictions = [{"id": k, "prediction_text": v, "no_answer_probability": 0.0} for k, v in final_predictions.items()]
     else:
         formatted_predictions = [{"id": k, "prediction_text": v} for k, v in final_predictions.items()]
-    
+    '''
     #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
     references = [{"id": ex["id"], "answers": ex["answers"]} for ex in test_data]
 
     print()
-    print(metric.compute(predictions=formatted_predictions, references=references))
+    #print(metric.compute(predictions=formatted_predictions, references=references))
+    print(metric.compute(predictions=final_predictions, references=references))
     '''
     '''
     
