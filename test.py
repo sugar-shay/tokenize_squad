@@ -539,6 +539,9 @@ def main(squad_v2=False):
     
     metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
     
+    print('final preds len: ', len(final_predictions))
+    print('final preds[0] shape', final_predictions.shape)
+    
     '''
     if squad_v2:
         formatted_predictions = [{"id": k, "prediction_text": v, "no_answer_probability": 0.0} for k, v in final_predictions.items()]
@@ -546,12 +549,11 @@ def main(squad_v2=False):
         formatted_predictions = [{"id": k, "prediction_text": v} for k, v in final_predictions.items()]
     '''
     #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
-    references = [{"id": ex["id"], "answers": ex["answers"]} for ex in test_data]
-
+    
+    '''
     print()
     #print(metric.compute(predictions=formatted_predictions, references=references))
     print(metric.compute(predictions=final_predictions, references=references))
-    '''
     '''
     
 if __name__ == "__main__":
