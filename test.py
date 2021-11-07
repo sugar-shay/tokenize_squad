@@ -14,6 +14,9 @@ import numpy as np
 import collections
 from collections import Counter
 
+from sklearn.metrics import f1_score
+import itertools
+
 def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
 ):
     
@@ -484,6 +487,22 @@ def get_refs(tokenized_test_data):
         refs.append(refrence)
     return refs
 
+def compute_f1(truth_tokens, pred_tokens):
+    
+    # if either the prediction or the truth is no-answer then f1 = 1 if they agree, 0 otherwise
+    if len(pred_tokens) == 0 or len(truth_tokens) == 0:
+        return int(pred_tokens == truth_tokens)
+    
+    common_tokens = set(pred_tokens) & set(truth_tokens)
+    
+    # if there are no common tokens then f1 = 0
+    if len(common_tokens) == 0:
+        return 0
+    
+    prec = len(common_tokens) / len(pred_tokens)
+    rec = len(common_tokens) / len(truth_tokens)
+    
+    return 2 * (prec * rec) / (prec + rec)
 
 
 def main(squad_v2=False):
@@ -579,7 +598,11 @@ def main(squad_v2=False):
     
     print()
     #print(metric.compute(predictions=formatted_predictions, references=references))
-    print(metric.compute(predictions=final_predictions, references=references))
+    #print(metric.compute(predictions=final_predictions, references=references))
+    
+    f1 = compute_f1(list(itertools.chain(*final_predictions)) , list(itertools.chain(*references)))
+    print('F1 Score: ', f1)
+    
     
     
 if __name__ == "__main__":
