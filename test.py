@@ -315,18 +315,23 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
     
     
     all_start_logits, all_end_logits = raw_predictions
+    
+    #Default way from huggingface
+    '''
     # Build a map example to its corresponding features.
     example_id_to_index = {k: i for i, k in enumerate(test_data["id"])}
     features_per_example = collections.defaultdict(list)
     for i, feature in enumerate(tokenized_test_data):
         features_per_example[example_id_to_index[feature["example_id"]]].append(i)
+    '''
         
-    tokenized_example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["id"])}
+    # Build a map example to its corresponding features.
+    example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["id"])}
+    features_per_example = collections.defaultdict(list)
+    for i, feature in enumerate(tokenized_test_data):
+        features_per_example[example_id_to_index[feature["example_id"]]].append(i)
         
-    print()
-    print('len example_id_to_index: ', len(example_id_to_index))
-    print('len tokenized_example_id_to_index: ', len(tokenized_example_id_to_index))
-    print()
+
 
     # The dictionaries we have to fill.
     predictions = collections.OrderedDict()
