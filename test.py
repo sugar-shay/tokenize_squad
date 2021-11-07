@@ -459,6 +459,31 @@ def new_postprocess_qa_predictions(test_data, tokenized_test_data, raw_predictio
 
     return predictions
 
+def get_refs(tokenized_test_data):
+    
+    example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["id"])}
+    features_per_example = collections.defaultdict(list)
+    for i, feature in enumerate(tokenized_test_data):
+        features_per_example[example_id_to_index[feature["example_id"]]].append(i)
+        
+        
+    refs = []
+        
+    # Let's loop over all the examples!
+    for example_index in range(len(tqdm(tokenized_test_data))):
+        # Those are the indices of the features associated to the current example.
+        feature_indices = features_per_example[example_index]
+
+        
+        #context = example["context"]
+        input_ids = tokenized_test_data[example_index]['input_ids']
+        start_positions = tokenized_test_data[example_index]['start_positions']
+        end_positions = tokenized_test_data[example_index]['end_positions']
+        
+        refrence = input_ids[start_positions: end_positions]
+        refs.append(refrence)
+    return refs
+
 
 
 def main(squad_v2=False):
@@ -550,6 +575,7 @@ def main(squad_v2=False):
     '''
     #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
     
+    references = get_refs(tokenized_test)
     '''
     print()
     #print(metric.compute(predictions=formatted_predictions, references=references))
