@@ -207,11 +207,11 @@ def new_postprocess_qa_predictions(tokenized_test_data, raw_predictions, this_to
         if not squad_v2:
             print()
             print('example_index["example_id"]: ', example_index['example_id'])
-            predictions[example_index["example_id"]] = best_answer["text"]
+            predictions[tokenized_test_data[example_index]["example_id"]] = best_answer["text"]
             #predictions.append(best_answer["text"])
         else:
             answer = best_answer["text"] if best_answer["score"] > min_null_score else ""
-            predictions[example_index["example_id"]] = answer
+            predictions[tokenized_test_data[example_index]["example_id"]] = answer
             #predictions.append(answer)
 
     return predictions
