@@ -133,7 +133,7 @@ def new_postprocess_qa_predictions(tokenized_test_data, raw_predictions, this_to
     all_start_logits, all_end_logits = raw_predictions
         
     # Build a map example to its corresponding features.
-    example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["id"])}
+    example_id_to_index = {k: i for i, k in enumerate(tokenized_test_data["example_id"])}
     features_per_example = collections.defaultdict(list)
     for i, feature in enumerate(tokenized_test_data):
         features_per_example[example_id_to_index[feature["example_id"]]].append(i)
