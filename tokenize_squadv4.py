@@ -142,8 +142,7 @@ def new_postprocess_qa_predictions(tokenized_test_data, raw_predictions, this_to
 
     # The dictionaries we have to fill.
     #predictions = collections.OrderedDict()
-    predictions = []
-
+    predictions = collections.OrderedDict()
     # Let's loop over all the examples!
     for example_index in range(len(tqdm(tokenized_test_data))):
         # Those are the indices of the features associated to the current example.
@@ -206,12 +205,12 @@ def new_postprocess_qa_predictions(tokenized_test_data, raw_predictions, this_to
         
         # Let's pick our final answer: the best one or the null answer (only for squad_v2)
         if not squad_v2:
-            #predictions[example_index["id"]] = best_answer["text"]
-            predictions.append(best_answer["text"])
+            predictions[example_index["id"]] = best_answer["text"]
+            #predictions.append(best_answer["text"])
         else:
             answer = best_answer["text"] if best_answer["score"] > min_null_score else ""
-            #predictions[example_index["id"]] = answer
-            predictions.append(answer)
+            predictions[example_index["id"]] = answer
+            #predictions.append(answer)
 
     return predictions
 
