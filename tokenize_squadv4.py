@@ -205,8 +205,8 @@ def new_postprocess_qa_predictions(tokenized_test_data, raw_predictions, this_to
         
         # Let's pick our final answer: the best one or the null answer (only for squad_v2)
         if not squad_v2:
-            print()
-            print('example_index["example_id"]: ', example_index['example_id'])
+            #print()
+            #print('example_index["example_id"]: ', example_index['example_id'])
             predictions[tokenized_test_data[example_index]["example_id"]] = best_answer["text"]
             #predictions.append(best_answer["text"])
         else:
