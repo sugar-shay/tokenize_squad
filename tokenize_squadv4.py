@@ -266,7 +266,7 @@ def main(squad_v2=False):
     
     final_predictions = new_postprocess_qa_predictions(tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
-    
+    print('final preds: ', final_predictions)
     
 if __name__ == "__main__":
     main()
