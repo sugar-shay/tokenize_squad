@@ -56,6 +56,9 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
     # The offset mappings will give us a map from token to character position in the original context. This will
     # help us compute the start_positions and end_positions.
     offset_mapping = tokenized_examples["offset_mapping"]
+    
+    #we need the example_id for testing
+    tokenized_examples["example_id"] = []
 
     # Let's label those examples!
     tokenized_examples["start_positions"] = []
@@ -75,6 +78,7 @@ def tokenize_squad(this_example, this_tokenizer, subdataset_name=None, **kwargs
         #so example['answers'] will return a list of answers for each example
         #we index examples["answers"] by sample_index so we can find the answer associated with this example
         answers = this_example["answers"][sample_index]
+        tokenized_examples['example_id'].append(this_example['id'][sample_index])
 
         # If no answers are given, set the cls_index as answer.
         if len(answers["answer_start"]) == 0:
