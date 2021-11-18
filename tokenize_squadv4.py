@@ -270,7 +270,18 @@ def main(squad_v2=False):
     
     final_predictions = new_postprocess_qa_predictions(tokenized_test, raw_predictions.predictions, this_tokenizer=tokenizer, **postprocess_kwargs)
     
-    print('final preds: ', final_predictions)
+    #print('final preds: ', final_predictions)
+    
+    formatted_predictions = [{"id": k, "prediction_text": v} for k, v in final_predictions.items()]
+    
+    #references = [{"id": ex["id"], "answers": ex["answers"]} for ex in datasets["validation"]]
+    references = [{"id": ex["id"], "answers": ex["answers"]} for ex in test_data]
+    
+    metric = load_metric("squad_v2" if postprocess_kwargs['squad_v2'] else "squad")
+
+    print()
+    print(metric.compute(predictions=formatted_predictions, references=references))
+    
     
 if __name__ == "__main__":
     main()
